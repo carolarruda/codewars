@@ -142,20 +142,16 @@ function sudoku(puzzle) {
   //   what is the most completed row or column or square
   //  the most completed is the one with the least amount of zeros
 
-  function findMin (object){
+  function findMin(object) {
     return Object.entries(object).reduce(
-      (min, entry) => ((entry[1] <= min[1] && entry[1] > 0)  ? entry : min),
-      [0, +Infinity] 
+      (min, entry) => (entry[1] <= min[1] && entry[1] > 0 ? entry : min),
+      [0, +Infinity]
     );
   }
 
-
-
-  let minR = findMin(rows)
-  let minC = findMin(columns)
-  let minS = findMin(boxes)
-
-
+  let minR = findMin(rows);
+  let minC = findMin(columns);
+  let minS = findMin(boxes);
 
   if (minR[1] > minC[1] && minS[1] > minC[1]) {
     console.log(
@@ -196,12 +192,24 @@ function sudoku(puzzle) {
               checkRows[k]
             );
             let square;
-            if (checkRows[k] < 3) {
+            if (checkRows[k] < 3 && minC < 3) {
+              square = 0;
+            } else if (checkRows[k] < 3 && 2 < minC < 6) {
               square = 1;
-            } else if (checkRows[k] < 6) {
+            } else if (checkRows[k] < 3 && minC > 5) {
+              square = 2;
+            } else if (checkRows[k] < 6 && minC < 3) {
+              square = 3;
+            } else if (checkRows[k] < 6 && 2 < minC < 6) {
               square = 4;
-            } else if (checkRows[k] < 9) {
+            } else if (checkRows[k] < 6 && minC > 5) {
+              square = 5;
+            } else if (checkRows[k] < 9 && minC < 3) {
+              square = 6;
+            } else if (checkRows[k] < 9 && 2 < minC < 6) {
               square = 7;
+            } else if (checkRows[k] < 9 && minC > 5) {
+              square = 8;
             }
 
             if (!puzzleSquares[square].includes(arrMissingNums[j])) {
@@ -245,24 +253,30 @@ function sudoku(puzzle) {
 
   console.log(puzzle);
 
-  let updatedRows =  getRowsUnfilled(puzzle);
+  let updatedRows = getRowsUnfilled(puzzle);
   puzzleColumns = transposeArray(puzzle, 9);
 
   console.log(puzzleColumns);
   let updatedColumns = getColumnsUnfilled(puzzleColumns);
-  console.log('getColumnsUnfilled', getColumnsUnfilled(puzzleColumns));
+  console.log("getColumnsUnfilled", getColumnsUnfilled(puzzleColumns));
   let updatedBoxes = getSsquaresUnfilled(checkSquares(puzzle, 9));
 
   console.log(updatedRows);
-  console.log('updated columns', updatedColumns);
+  console.log("updated columns", updatedColumns);
   console.log(updatedBoxes);
 
+  minR = findMin(updatedRows);
+  minC = findMin(updatedColumns);
+  minS = findMin(boxes);
 
-  let newminR = findMin(updatedRows)
-  let newminC = findMin(updatedColumns)
-  let newminS = findMin(boxes)
+  console.log(minR, minC, minS);
 
-  console.log(newminR, newminC, newminS);
+  if (minR[1] === minC[1] && minS[1] === minC[1]) {
+    // if all the rows, columns and squares are equally filled we can try to fill the squares
+    console.log(
+      `we need to start with checking if we can fill square ${minS[0]}`
+    );
+  }
 }
 
 var puzzle = [
