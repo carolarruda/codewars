@@ -129,7 +129,7 @@ function sudoku(puzzle) {
     return columns;
   }
 
-  function squaresUnfilled(array) {
+  function getSsquaresUnfilled(array) {
     for (let i = 0; i < array.length; i++) {
       boxes[i] = array[i].filter((v) => v === 0).length;
     }
@@ -138,16 +138,18 @@ function sudoku(puzzle) {
 
   getRowsUnfilled(puzzle);
   getColumnsUnfilled(puzzleColumns);
-  squaresUnfilled(puzzleSquares);
+  getSsquaresUnfilled(puzzleSquares);
   //   what is the most completed row or column or square
   //  the most completed is the one with the least amount of zeros
 
   function findMin (object){
     return Object.entries(object).reduce(
-      (min, entry) => (entry[1] <= min[1] ? entry : min),
-      [0, +Infinity]
+      (min, entry) => ((entry[1] <= min[1] && entry[1] > 0)  ? entry : min),
+      [0, +Infinity] 
     );
   }
+
+
 
   let minR = findMin(rows)
   let minC = findMin(columns)
@@ -243,9 +245,24 @@ function sudoku(puzzle) {
 
   console.log(puzzle);
 
-  getRowsUnfilled(puzzle);
-  getColumnsUnfilled(transposeArray(puzzle, 9));
-  getColumnsUnfilled(checkSquares(puzzle, 9));
+  let updatedRows =  getRowsUnfilled(puzzle);
+  puzzleColumns = transposeArray(puzzle, 9);
+
+  console.log(puzzleColumns);
+  let updatedColumns = getColumnsUnfilled(puzzleColumns);
+  console.log('getColumnsUnfilled', getColumnsUnfilled(puzzleColumns));
+  let updatedBoxes = getSsquaresUnfilled(checkSquares(puzzle, 9));
+
+  console.log(updatedRows);
+  console.log('updated columns', updatedColumns);
+  console.log(updatedBoxes);
+
+
+  let newminR = findMin(updatedRows)
+  let newminC = findMin(updatedColumns)
+  let newminS = findMin(boxes)
+
+  console.log(newminR, newminC, newminS);
 }
 
 var puzzle = [
