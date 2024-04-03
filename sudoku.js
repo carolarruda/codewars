@@ -72,6 +72,7 @@ function sudoku(puzzle) {
   // check rows first
 
   let rows = {
+    0: null,
     1: null,
     2: null,
     3: null,
@@ -80,9 +81,9 @@ function sudoku(puzzle) {
     6: null,
     7: null,
     8: null,
-    9: null,
   };
   let columns = {
+    0: null,
     1: null,
     2: null,
     3: null,
@@ -91,7 +92,17 @@ function sudoku(puzzle) {
     6: null,
     7: null,
     8: null,
-    9: null,
+  };
+  let boxes = {
+    0: null,
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    7: null,
+    8: null,
   };
 
   let write = {
@@ -101,71 +112,140 @@ function sudoku(puzzle) {
 
   // checks the number of zeros in each row and updates the row object
   // checks the number of zeros in each column and updates the column object
-
-  for (let i = 0; i < puzzle.length; i++) {
-    for (let j = 0; j < puzzle[i].length; j++) {
-      if (puzzle[i][j] === 0) {
-        rows[i + 1]++;
-        columns[j + 1]++;
-      }
-    }
-  }
-
-  // transpose puzzle
-
   let puzzleColumns = transposeArray(puzzle, 9);
   let puzzleSquares = checkSquares(puzzle, 9);
 
-  //   what is the most completed row or column
+  function getRowsUnfilled(array) {
+    for (let i = 0; i < array.length; i++) {
+      rows[i] = array[i].filter((v) => v === 0).length;
+    }
+    return rows;
+  }
+
+  function getColumnsUnfilled(array) {
+    for (let i = 0; i < array.length; i++) {
+      columns[i] = array[i].filter((v) => v === 0).length;
+    }
+    return columns;
+  }
+
+  function squaresUnfilled(array) {
+    for (let i = 0; i < array.length; i++) {
+      boxes[i] = array[i].filter((v) => v === 0).length;
+    }
+    return boxes;
+  }
+
+  getRowsUnfilled(puzzle);
+  getColumnsUnfilled(puzzleColumns);
+  squaresUnfilled(puzzleSquares);
+  //   what is the most completed row or column or square
   //  the most completed is the one with the least amount of zeros
 
-  let minR = Object.entries(rows).reduce(
-    (min, entry) => (entry[1] <= min[1] ? entry : min),
-    [0, +Infinity]
-  );
-  let minC = Object.entries(columns).reduce(
-    (min, entry) => (entry[1] <= min[1] ? entry : min),
-    [0, +Infinity]
-  );
+  function findMin (object){
+    return Object.entries(object).reduce(
+      (min, entry) => (entry[1] <= min[1] ? entry : min),
+      [0, +Infinity]
+    );
+  }
 
-  if (minR[1] > minC[1]) {
+  let minR = findMin(rows)
+  let minC = findMin(columns)
+  let minS = findMin(boxes)
+
+
+
+  if (minR[1] > minC[1] && minS[1] > minC[1]) {
     console.log(
       `we need to start with checking if we can fill column ${minC[0]}`
     );
 
-    let sortedColumn = puzzleColumns[minC[0] - 1];
-
-    console.log(sortedColumn);
-
-    // let cleanedColumn = sortedColumn.filter((val) => val !== 0);
-    // console.log("cleaned", cleanedColumn);
+    let sortedColumn = puzzleColumns[minC[0]];
 
     let arrMissingNums = [];
     let checkRows = [];
-    let checkSquares = [];
+    let coordinatinates = {
+      c: null,
+      r: null,
+      number: null,
+    };
 
     for (let i = 1; i < sortedColumn.length; i++) {
       if (!sortedColumn.includes(i)) {
         arrMissingNums.push(i);
       }
 
-      // find first zero in column 5
       if (sortedColumn[i] === 0) {
-        checkRows.push(i + 1);
+        checkRows.push(i);
       }
     }
 
-    console.log('rows to perform check', checkRows);
+    let indexNum;
+    let indexRow;
+    let currentRow;
 
+    while (arrMissingNums.length > 0) {
+      for (let j = 0; j < arrMissingNums.length; j++) {
+        for (let k = 0; k < checkRows.length; k++) {
+          if (!puzzle[checkRows[k]].includes(arrMissingNums[j])) {
+            console.log(
+              arrMissingNums[j],
+              "was not found in row number ",
+              checkRows[k]
+            );
+            let square;
+            if (checkRows[k] < 3) {
+              square = 1;
+            } else if (checkRows[k] < 6) {
+              square = 4;
+            } else if (checkRows[k] < 9) {
+              square = 7;
+            }
 
-    // missing numbers vs checks
-    for (let j = 0; j < arrMissingNums.length; j++) {
-      console.log(arrMissingNums[j]);
+            if (!puzzleSquares[square].includes(arrMissingNums[j])) {
+              write.square++;
+              write.row++;
 
+              currentRow = checkRows[k];
+            } else {
+              console.log("sorry but we found the number in the square");
+            }
+          }
+        }
+        if (write.square < 2 && write.row < 2) {
+          coordinatinates.number = arrMissingNums[j];
+          coordinatinates.c = Number(minC[0]);
+          coordinatinates.r = currentRow;
+          console.log(
+            "congratulations, you can write this number here",
+            arrMissingNums[j]
+          );
+          indexNum = j;
 
+          puzzle[coordinatinates.r][coordinatinates.c] = coordinatinates.number;
+          console.log(coordinatinates);
+        }
 
+        write.square = 0;
+        write.row = 0;
+      }
+      console.log("checkRows", checkRows);
+      console.log("coordinatinates.r", coordinatinates.r);
+
+      indexRow = checkRows.indexOf(coordinatinates.r);
+      console.log(indexRow);
+      arrMissingNums.splice(indexNum, 1);
+      checkRows.splice(indexRow, 1);
+      console.log("missing nums updated", arrMissingNums);
+      console.log("rows to fill updated", checkRows);
     }
   }
+
+  console.log(puzzle);
+
+  getRowsUnfilled(puzzle);
+  getColumnsUnfilled(transposeArray(puzzle, 9));
+  getColumnsUnfilled(checkSquares(puzzle, 9));
 }
 
 var puzzle = [
