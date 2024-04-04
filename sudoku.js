@@ -538,6 +538,8 @@ function sudoku(puzzle) {
               }
             }
           }
+
+          console.log(write);
           if (write.square < 2 && write.row < 2) {
             coordinatinates.number = arrMissingNums[j];
             coordinatinates.c = currentColumn;
@@ -547,6 +549,11 @@ function sudoku(puzzle) {
 
             puzzle[coordinatinates.r][coordinatinates.c] =
               coordinatinates.number;
+
+
+
+              console.log(coordinatinates);
+              console.log('puzzle after replacement',puzzle);
 
               found = true;
               indexNum = j;
@@ -561,11 +568,15 @@ function sudoku(puzzle) {
 
           write.square = 0;
           write.row = 0;
+
+          break;
         }
 
-        indexSquare = checkIndex.indexOf(currentIndex);
-        arrMissingNums.splice(indexNum, 1);
-        checkIndex.splice(indexSquare, 1);
+
+        
+
+        arrMissingNums.splice(indexNum, 1);  
+        checkIndex.splice(currentIndex, 1);
 
         console.log("miss nums updated: ", arrMissingNums);
         console.log("miss index updated: ", checkIndex);
